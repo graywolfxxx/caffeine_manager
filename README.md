@@ -92,26 +92,109 @@ Every request returns json object with
 
 ## How to deploy
 
-<ol>
-    <li>Install perl 5.10.1 or higher</li>
-    <li>Install and run MySQL</li>
-    <li>Install Mojolicious
-        wget -O - https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Mojolicious
-    </li>
-    <li>Create the project's directory:
-        mkdir -p -m 0775 /home/caffeine_manager/
-    </li>
-    <li>Clone repository to this new dir
-        git clone "https://github.com/graywolfxxx/caffeine_manager" /home/caffeine_manager/
-    </li>
-    <li>Init DB
-        mysql < sql/init_db.sql
-    </li>
-    <li>Run application using Morbo development server
-        morbo script/caffeine
-    </li>
-    <li>Run console scripts to work with application and get some test results
-        ./bin/test_adding.sh
-        ./bin/test_stat.sh
-    </li>
-</ol>
+### Deploy
+
+1. Install perl 5.10.1 or higher
+
+2. Install and run MySQL
+
+3. Install Mojolicious
+    ```bash
+    wget -O - https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Mojolicious
+    ```
+
+4. Create the project's directory:
+    ```bash
+    mkdir -p -m 0775 /home/caffeine_manager/
+    cd /home/caffeine_manager/
+    ```
+
+5. Clone repository to this new dir
+    ```bash
+    git clone "https://github.com/graywolfxxx/caffeine_manager" ./
+    ```
+
+6. Init DB
+    ```bash
+    mysql < sql/init_db.sql
+    ```
+
+### Run application using Morbo development server
+
+1. Run application
+    ```bash
+    morbo script/caffeine
+    ```
+
+2. Run console scripts to work with application and get some test results
+    ```bash
+    ./bin/test_adding.sh
+    ./bin/test_stat.sh
+    ```
+
+### Run application using Apache2
+
+1. Install Apache2
+
+2. Add to /etc/hosts of your server following string
+    ```bash
+    127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 caffeine.com
+    ```
+
+3. Open for edit config file of Apache /etc/httpd/conf/httpd.conf. Set or change following:
+    ```bash
+    Listen 80
+    
+    # load modules if they haven't been loaded yet in /etc/httpd/conf/httpd.conf
+    LoadModule env_module modules/mod_env.so
+    LoadModule cgi_module modules/mod_cgi.so
+
+    ServerName 127.0.0.1:80
+
+    # In the end of the config file add virtual host caffeine.com
+    NameVirtualHost *:80
+
+    <VirtualHost *:80>
+        ServerAdmin root@localhost
+        ServerName caffeine.com
+
+        DocumentRoot /home/caffeine_manager
+        Options FollowSymLinks
+        IndexIgnore *
+
+        RewriteEngine on
+
+        RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f
+        RewriteRule ^(.*)$ /public/$1 [L,NS]
+
+        RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} !-f
+        RewriteRule ^(.*)$ /script/caffeine/$1 [L,NS,H=cgi-script]
+
+        SetEnv MOJO_MODE "production"
+        <Directory "/home/caffeine_manager/script/">
+            AllowOverride None
+            Options ExecCGI
+            Order allow,deny
+            Allow from all
+        </Directory>
+
+        ErrorLog  logs/caffeine_manager.com-error_log
+        CustomLog logs/caffeine_manager.com-access_log common
+    </VirtualHost>
+    ```
+
+4. Reload Apache
+    ```bash
+    /etc/init.d/httpd stop
+    /etc/init.d/httpd start
+    ```
+    or
+    ```bash
+    /etc/init.d/httpd reload
+    ```
+
+5. Run console scripts to work with application and get some test results
+    ```bash
+    ./bin/apache_test_adding.sh
+    ./bin/apache_test_stat.sh
+    ```
