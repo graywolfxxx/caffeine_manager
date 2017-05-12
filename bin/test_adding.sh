@@ -1,6 +1,6 @@
 #!/bin/bash
 
-srvcurl='http://localhost:3000'
+srvcurl=$1
 args=''
 
 ### USER ###

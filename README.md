@@ -128,8 +128,8 @@ Every request returns json object with
 
 2. Run console scripts to work with application and get some test results
     ```bash
-    ./bin/test_adding.sh
-    ./bin/test_stat.sh
+    ./bin/test_adding.sh http://localhost:3000
+    ./bin/test_stat.sh http://localhost:3000
     ```
 
 ### Run application using Apache2
@@ -195,6 +195,6 @@ Every request returns json object with
 
 5. Run console scripts to work with application and get some test results
     ```bash
-    ./bin/apache_test_adding.sh
-    ./bin/apache_test_stat.sh
+    ./bin/test_adding.sh http://caffeine.com
+    ./bin/test_stat.sh http://caffeine.com
     ```
