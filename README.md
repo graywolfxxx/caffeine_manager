@@ -178,8 +178,8 @@ Every request returns json object with
             Allow from all
         </Directory>
 
-        ErrorLog  logs/caffeine_manager.com-error_log
-        CustomLog logs/caffeine_manager.com-access_log common
+        ErrorLog  logs/caffeine.com-error_log
+        CustomLog logs/caffeine.com-access_log common
     </VirtualHost>
     ```
 
