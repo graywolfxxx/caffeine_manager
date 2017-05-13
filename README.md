@@ -136,12 +136,17 @@ Every request returns json object with
 
 1. Install Apache2
 
-2. Add to /etc/hosts of your server following string
+2. Do this point If your Linux supports SELinux access control
+    ```bash
+    chcon -R -t httpd_sys_content_t /home/caffeine_manager
+    ```
+
+3. Add to /etc/hosts of your server following string
     ```bash
     127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 caffeine.com
     ```
 
-3. Open for edit config file of Apache /etc/httpd/conf/httpd.conf. Set or change following:
+4. Open for edit config file of Apache /etc/httpd/conf/httpd.conf. Set or change following:
     ```bash
     Listen 80
     
@@ -163,11 +168,6 @@ Every request returns json object with
         IndexIgnore *
 
         RewriteEngine on
-
-        RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f
-        RewriteRule ^(.*)$ /public/$1 [L,NS]
-
-        RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} !-f
         RewriteRule ^(.*)$ /script/caffeine/$1 [L,NS,H=cgi-script]
 
         SetEnv MOJO_MODE "production"
@@ -183,7 +183,7 @@ Every request returns json object with
     </VirtualHost>
     ```
 
-4. Reload Apache
+5. Reload Apache
     ```bash
     /etc/init.d/httpd stop
     /etc/init.d/httpd start
@@ -193,7 +193,7 @@ Every request returns json object with
     /etc/init.d/httpd reload
     ```
 
-5. Run console scripts to work with application and get some test results
+6. Run console scripts to work with application and get some test results
     ```bash
     ./bin/test_adding.sh http://caffeine.com
     ./bin/test_stat.sh http://caffeine.com
