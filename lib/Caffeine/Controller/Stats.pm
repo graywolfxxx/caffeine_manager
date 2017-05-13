@@ -62,25 +62,28 @@ sub level {
     $user = @$user ? $user->[0] : undef;
     return $self->reply->not_found() if !$user;
 
+    my ($hours_stat, $hours_extra) = (24, 5);
+    my $hours = $hours_stat + $hours_extra;
+
     ($stmt, @bind) = $sql->select(
         $self->model('Link_UserMachine')->tname(),
         '*, unix_timestamp(`timestamp`) as ts',
         # TODO: Get rid of NOW() - INTERVAL 1 DAY because it is VERY slow here
-        {user_id => $user_id, timestamp => {'>' => \"NOW() - INTERVAL 1 DAY"}},
+        {user_id => $user_id, timestamp => {'>' => \"NOW() - INTERVAL $hours HOUR"}},
         \'timestamp',
     );
     my $links = $self->app->db->select($stmt, @bind);
     return $self->render_err(500, 500, "Problems with getting user's purchases from DB") if !$links;
 
-    my $level = [map {0} (0 .. 23)];
+    my $level = [map {0} (0 .. ($hours - 1))];
 
     if (@$links) {
-        my $day_ago = time() - 24 * 3600;
+        my $day_ago = time() - $hours * 3600;
         for my $l (@$links) {
             my $diff_sec = $l->{ts} - $day_ago;
             my $hh = int($diff_sec / 3600);
             my $ss = $diff_sec % 3600;
-            my $i  = $hh > 23 ? 0 : 23 - $hh; # $hh > 23 it is here just in case
+            my $i  = $hh > ($hours - 1) ? 0 : ($hours - 1) - $hh; # $hh > ($hours - 1) it is here just in case
             $level->[$i] += (3600 - $ss) / 3600;
             $level->[$i] = 1 if $level->[$i] > 1;
             if ($i) {
@@ -103,6 +106,8 @@ sub level {
             $level->[$i] = $level->[$i] >= 1 ? 100 : int($level->[$i] * 100 + 0.5);
         }
     }
+
+    splice(@$level, $hours_stat);
 
     return $self->render_ok('level' => $level);
 }
