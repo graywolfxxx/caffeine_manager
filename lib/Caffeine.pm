@@ -1,6 +1,7 @@
 package Caffeine;
 
 use Mojo::Base 'Mojolicious';
+use SQL::Abstract;
 use Caffeine::DB;
 use Caffeine::Model;
 
@@ -19,6 +20,9 @@ sub startup {
         db_pass  => '',
     );
     $self->helper(db => sub {$db});
+
+    my $sql = SQL::Abstract->new();
+    $self->helper(sql => sub {$sql});
 
     my $model = Caffeine::Model->new(app => $self);
     $self->helper(model => sub {

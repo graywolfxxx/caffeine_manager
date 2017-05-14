@@ -1,7 +1,6 @@
 package Caffeine::Model::Base;
 
 use Mojo::Base -base;
-use SQL::Abstract;
 
 has 'app';
 
@@ -19,8 +18,7 @@ sub insert {
 
     $p = {} if !$p;
 
-    my $sql = SQL::Abstract->new;
-    my ($stmt, @bind) = $sql->insert($self->tname(), $p);
+    my ($stmt, @bind) = $self->app->sql->insert($self->tname(), $p);
     my $res = $self->app->db->do($stmt, undef, @bind);
     return $self->error(500, 500, "Can't add new " . $self->entity_name() . " to DB") if !$res;
 
@@ -29,8 +27,7 @@ sub insert {
 
 sub select {
     my ($self, $fields, $where, $order, $limit) = @_;
-    my $sql = SQL::Abstract->new;
-    my ($stmt, @bind) = $sql->select($self->tname(), $fields || '*', $where, $order);
+    my ($stmt, @bind) = $self->app->sql->select($self->tname(), $fields || '*', $where, $order);
     if ($limit && !ref($limit)) {
         $stmt .= ' LIMIT ' . $limit;
     } elsif ($limit && ref($limit) eq 'ARRAY') {
@@ -47,8 +44,7 @@ sub select {
 
 sub count {
     my ($self, $where) = @_;
-    my $sql = SQL::Abstract->new;
-    my ($stmt, @bind) = $sql->select($self->tname(), 'count(*) AS cnt', $where);
+    my ($stmt, @bind) = $self->app->sql->select($self->tname(), 'count(*) AS cnt', $where);
     my $res = $self->app->db->select($stmt, @bind);
     return $self->error(500, 500, "Can't select count of " . $self->entity_name_plur() . " from DB") if !$res;
     return $res && @$res ? $res->[0]->{cnt} : 0;
