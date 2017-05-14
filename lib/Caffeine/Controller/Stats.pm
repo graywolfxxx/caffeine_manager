@@ -16,7 +16,7 @@ sub coffee {
     $where->{machine_id} = $self->stash('machine') if $self->stash('machine');
     $where->{user_id}    = $self->stash('user')    if $self->stash('user');
 
-    my ($purchases, undef) = $self->model('Link_UserMachine')->select(undef, $where, \'timestamp DESC');
+    my ($purchases, undef) = $self->model('Link_UserMachine')->select(undef, $where, \'timestamp');
     return $self->render_err(500, 500, "Problems with getting purchases from DB") if !$purchases;
 
     my $user_by_id = {map {$_->{user_id} => 1} @$purchases};
