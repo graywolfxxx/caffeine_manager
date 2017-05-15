@@ -1,6 +1,9 @@
 package Caffeine;
 
+use FindBin;
+
 use Mojo::Base 'Mojolicious';
+use Mojolicious::Plugin::Config;
 use SQL::Abstract;
 use Caffeine::DB;
 use Caffeine::Model;
@@ -8,16 +11,17 @@ use Caffeine::Model;
 sub startup {
     my ($self) = @_;
 
-    $self->mode('production');
-
     $self->secrets(['fljslfjkjadHlT;b665']);
+    $self->plugin('Config' => {file => "$FindBin::Bin/../etc/main.conf"});
+
+    $self->mode($self->app->config->{app_mode}) if defined($self->app->config->{app_mode});
 
     my $db = Caffeine::DB->new(
-        db_name  => 'caffeine',
-        db_host  => 'localhost',
-        db_port  => 3306,
-        db_login => 'root',
-        db_pass  => '',
+        db_name  => $self->app->config->{db}->{name},
+        db_host  => $self->app->config->{db}->{host},
+        db_port  => $self->app->config->{db}->{port},
+        db_login => $self->app->config->{db}->{login},
+        db_pass  => $self->app->config->{db}->{pass},
     );
     $self->helper(db => sub {$db});
 
