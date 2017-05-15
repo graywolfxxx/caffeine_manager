@@ -170,9 +170,9 @@ Every request returns json object with
 
     ServerName 127.0.0.1:80
 
-    # In the end of the config file add virtual host caffeine.com
     NameVirtualHost *:80
 
+    # In the end of the config file add virtual host caffeine.com
     <VirtualHost *:80>
         ServerAdmin root@localhost
         ServerName caffeine.com
