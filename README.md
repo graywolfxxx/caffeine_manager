@@ -119,6 +119,20 @@ Every request returns json object with
     mysql < sql/init_db.sql
     ```
 
+7. Change db connection config etc/main.conf. By default it is
+    ```perl
+    {
+        app_mode => 'production',
+        db => {
+            name  => 'caffeine',
+            host  => 'localhost',
+            port  => 3306,
+            login => 'root',
+            pass  => '',
+        },
+    }
+    ```
+
 ### Run application using Morbo development server
 
 1. Run application
